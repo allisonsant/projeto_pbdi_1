@@ -51,3 +51,27 @@ END;
 $$
 
 
+DO $$
+DECLARE
+    country_name VARCHAR;
+    max_description VARCHAR;
+    cur_country CURSOR FOR
+        SELECT DISTINCT country FROM tb_winemag;
+    cur_description CURSOR FOR
+        SELECT description FROM tb_winemag WHERE country = country_name ORDER BY LENGTH(description) DESC LIMIT 1;
+BEGIN
+    OPEN cur_country;
+    LOOP
+        FETCH cur_country INTO country_name;
+        EXIT WHEN country_name IS NULL;
+        
+        OPEN cur_description;
+        FETCH cur_description INTO max_description;
+        CLOSE cur_description;
+        
+        RAISE NOTICE 'País: %, Descrição Mais Longa: %', country_name, max_description;
+    END LOOP;
+    
+    CLOSE cur_country;
+END;
+$$;
