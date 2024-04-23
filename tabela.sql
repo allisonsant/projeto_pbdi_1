@@ -75,3 +75,39 @@ BEGIN
     CLOSE cur_country;
 END;
 $$;
+
+CREATE TABLE tb_results (
+    id SERIAL PRIMARY KEY,
+    nome_pais VARCHAR(999),
+    preco_medio FLOAT,
+    descricao_mais_longa VARCHAR(999)
+);
+
+SELECT * FROM tb_results
+
+CREATE OR REPLACE FUNCTION calcular_resultados() RETURNS VOID AS $$
+DECLARE
+    country_name VARCHAR;
+    avg_price FLOAT;
+    max_description VARCHAR;
+BEGIN
+   
+    FOR country_name IN SELECT DISTINCT country FROM tb_winemag LOOP
+        
+       
+        SELECT AVG(price) INTO avg_price FROM tb_winemag WHERE country = country_name;
+        
+       
+        SELECT description INTO max_description FROM tb_winemag WHERE country = country_name ORDER BY LENGTH(description) DESC LIMIT 1;
+        
+       
+	   
+        INSERT INTO tb_results (nome_pais, preco_medio, descricao_mais_longa)
+        VALUES (country_name, avg_price, max_description);
+        
+    END LOOP;
+    
+    RETURN;
+END;
+$$ LANGUAGE plpgsql;
+
